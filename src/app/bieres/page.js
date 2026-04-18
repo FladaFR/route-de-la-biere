@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import NavBar from '@/components/NavBar'
 
 export default function BieresPage() {
   const router = useRouter()
@@ -126,6 +127,7 @@ if (pError || !participant || !participant.editions?.is_active) {
           />
         ))}
       </div>
+      <NavBar active="bieres" />
     </div>
   )
 }
