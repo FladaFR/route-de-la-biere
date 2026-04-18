@@ -421,7 +421,7 @@ corps:     form.corps?.length     ? form.corps     : null,
     <button
       onClick={async () => {
         const ok = await save(true)
-        if (ok) router.push('/classement')
+        if (ok) router.push(`/classement?newBeer=${beer_id}`);
       }}
       disabled={status === 'saving'}
       className="flex-1 py-3 rounded-xl bg-amber-900 text-white font-semibold disabled:opacity-50 text-sm"
@@ -686,7 +686,7 @@ function StepGeneral({ form, setField }) {
       {/* Public note */}
       <div>
         <FieldLabel>Notes publiques</FieldLabel>
-<p className="text-xs text-amber-500 mb-2">Visible par tous les participants</p>
+<p className="text-xs text-amber-500 mb-2">Visibles par tous les participants</p>
         <textarea
           value={form.public_note}
           onChange={e => setField('public_note', e.target.value)}
