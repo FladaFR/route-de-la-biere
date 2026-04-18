@@ -38,7 +38,7 @@ if (pError || !participant || !participant.editions?.is_active) {
       // 3. Fetch beers for this edition, with brewery name
       const { data: beersData, error: beersError } = await supabase
         .from('beers')
-        .select('beer_id, name, style, abv, is_unlocked, visit_order, breweries(name)')
+        .select('beer_id, name, style, abv, is_unlocked, visit_order, breweries(name, logo_url)')
         .eq('edition_id', participant.edition_id)
         .order('visit_order', { ascending: true })
 
@@ -159,21 +159,36 @@ function BeerCard({ beer, visitNumber, onTap }) {
       onClick={onTap}
       className={`rounded-xl p-4 flex items-center gap-3 transition-opacity ${cardStyle}`}
     >
-      {/* Visit order bubble */}
-      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${numberStyle}`}>
-        {visitNumber}
-      </div>
+      {/* Visit number + brewery logo */}
+<div className="flex flex-col items-center gap-1 flex-shrink-0 w-12">
+  <span className={`text-xs font-bold ${isLocked ? 'text-gray-400' : 'text-amber-700'}`}>
+    #{visitNumber}
+  </span>
+  <div className="w-10 h-10 rounded-full overflow-hidden bg-amber-100 border border-amber-200 flex items-center justify-center">
+    {beer.breweries?.logo_url ? (
+      <img
+        src={beer.breweries.logo_url}
+        alt={beer.breweries?.name}
+        className="w-full h-full object-cover"
+      />
+    ) : (
+      <span className="text-lg">🍺</span>
+    )}
+  </div>
+</div>
 
       {/* Names */}
       <div className="flex-1 min-w-0">
         <p className={`font-bold text-base leading-tight truncate ${breweryStyle}`}>
           {beer.breweries?.name ?? '—'}
         </p>
-        <p className={`text-sm truncate mt-0.5 ${beerStyle}`}>
-          {[beer.name, beer.style, beer.abv ? `${beer.abv}%` : null]
-            .filter(Boolean)
-            .join(' · ')}
-        </p>
+        {!isLocked && (
+  <p className="text-sm truncate mt-0.5 text-gray-500">
+    {[beer.name, beer.style, beer.abv ? `${beer.abv}%` : null]
+      .filter(Boolean)
+      .join(' · ')}
+  </p>
+)}
       </div>
 
       {/* Status badge */}
