@@ -260,22 +260,67 @@ console.log('beerData:', beerData, 'beerErr:', beerErr)
     <div className="min-h-screen bg-amber-50 flex flex-col">
 
       {/* ── Header ── */}
-      <div className="bg-amber-800 text-white px-4 py-3 flex items-center gap-3 sticky top-0 z-10">
-        <button
-          onClick={() => router.push('/bieres')}
-          className="text-amber-200 text-xl leading-none"
-          aria-label="Retour"
-        >
-          ←
-        </button>
-        <div className="flex-1 min-w-0">
-          <p className="text-xs text-amber-300 truncate">{brewery?.name}</p>
-          <p className="font-bold truncate">{beer?.name}</p>
-        </div>
-        {ratingId && (
-          <span className="text-xs text-amber-300 shrink-0">Brouillon sauvegardé</span>
-        )}
+<div className="bg-amber-800 text-white sticky top-0 z-10">
+  
+  {/* Top bar — back + draft status */}
+  <div className="flex items-center gap-3 px-4 pt-3 pb-2">
+    <button
+      onClick={() => router.push('/bieres')}
+      className="text-amber-200 text-xl leading-none shrink-0"
+      aria-label="Retour"
+    >
+      ←
+    </button>
+    <span className="text-xs text-amber-300 ml-auto shrink-0">
+      {ratingId ? '💾 Brouillon sauvegardé' : ''}
+    </span>
+  </div>
+
+  {/* Beer info card */}
+  <div className="px-4 pb-4 flex gap-3 items-start">
+    
+    {/* Brewery logo */}
+    {brewery?.logo_url ? (
+      <img
+        src={brewery.logo_url}
+        alt={brewery.name}
+        className="w-14 h-14 rounded-xl object-contain bg-white p-1 shrink-0"
+      />
+    ) : (
+      <div className="w-14 h-14 rounded-xl bg-amber-700 flex items-center justify-center shrink-0">
+        <span className="text-2xl">🍺</span>
       </div>
+    )}
+
+    {/* Text info */}
+    <div className="flex-1 min-w-0">
+      {/* Brewery name */}
+      <p className="text-xs text-amber-300 font-medium uppercase tracking-wide truncate">
+        {brewery?.name}
+      </p>
+      {/* Beer name + ABV */}
+      <p className="text-xl font-bold leading-tight">
+        {beer?.name}
+        {beer?.abv && (
+          <span className="text-sm font-normal text-amber-300 ml-2">
+            {beer.abv} % ABV
+          </span>
+        )}
+      </p>
+      {/* Style */}
+      {beer?.style && (
+        <p className="text-xs text-amber-400 mt-0.5">{beer.style}</p>
+      )}
+      {/* Description */}
+      {beer?.description && (
+        <p className="text-xs text-amber-200 mt-1.5 leading-relaxed line-clamp-3">
+          "{beer.description}"
+        </p>
+      )}
+    </div>
+
+  </div>
+</div>
 
       {/* ── Step tabs ── */}
       <div className="flex border-b border-amber-200 bg-white sticky top-[52px] z-10">
