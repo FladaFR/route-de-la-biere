@@ -16,7 +16,7 @@ export default function Profil() {
 
   useEffect(() => {
     async function loadParticipant() {
-      const token = localStorage.getItem('biere_token')
+      const token = localStorage.getItem('access_token')
       if (!token) {
         router.push('/')
         return

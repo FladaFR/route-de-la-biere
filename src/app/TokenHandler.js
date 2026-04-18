@@ -13,7 +13,7 @@ export default function TokenHandler() {
     async function identify() {
       // Priorité 1 : token dans l'URL. Priorité 2 : token sauvegardé.
       const urlToken = searchParams.get('token')
-      const token = urlToken || localStorage.getItem('biere_token')
+      const token = urlToken || localStorage.getItem('access_token')
 
       if (!token) {
         setStatus('no_token')
@@ -41,13 +41,13 @@ export default function TokenHandler() {
         .single()
 
       if (participantError || !participant) {
-        localStorage.removeItem('biere_token') // Nettoyer si token périmé
+        localStorage.removeItem('access_token') // Nettoyer si token périmé
         setStatus('invalid')
         return
       }
 
       // ✅ Token valid! Save and redirect.
-localStorage.setItem('biere_token', token)
+localStorage.setItem('access_token', token)
 setStatus('redirecting')
 
 // First visit (token from URL) → profile setup
