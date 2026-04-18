@@ -1,8 +1,19 @@
-import { supabase } from '@/lib/supabase'
+import { Suspense } from 'react'
+import TokenHandler from './TokenHandler'
 
-export default async function Home() {
-  const { data, error } = await supabase.from('test').select('*')
+function LoadingScreen() {
+  return (
+    <main className="min-h-screen bg-amber-50 flex flex-col items-center justify-center p-6">
+      <div className="text-6xl mb-6">🍺</div>
+      <p className="text-amber-800 text-lg font-medium">Chargement...</p>
+    </main>
+  )
+}
 
-  if (error) return <p>Connection failed: {error.message}</p>
-  return <p>Bienvenue à l'app de La Route de la Biere! 🎉</p>
+export default function Page() {
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <TokenHandler />
+    </Suspense>
+  )
 }
