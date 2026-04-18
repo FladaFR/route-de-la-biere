@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { createClient } from '@/utils/supabase/client';
+import { supabase } from '@/lib/supabase'
 import NavBar from '@/components/NavBar';
 
 export default function ClassementContent() {
@@ -20,7 +20,6 @@ export default function ClassementContent() {
   // ── 1. Identify participant ──────────────────────────────────────────────────
   useEffect(() => {
     async function bootstrap() {
-      const supabase = createClient();
       const token = localStorage.getItem('access_token');
       if (!token) { router.replace('/'); return; }
 
@@ -39,8 +38,7 @@ export default function ClassementContent() {
 
   // ── 2. Load rankings ─────────────────────────────────────────────────────────
   const loadRankings = useCallback(async (pId, eId) => {
-    const supabase = createClient();
-
+    
     const { data: tested, error: tErr } = await supabase
       .from('ratings')
       .select(`
@@ -127,7 +125,6 @@ export default function ClassementContent() {
     updated.sort((a, b) => a.rank - b.rank);
     setRankedBeers(updated);
 
-    const supabase = createClient();
     await Promise.all([
       supabase.from('rankings').update({ rank: beerB.rank }).eq('ranking_id', beerA.ranking_id),
       supabase.from('rankings').update({ rank: beerA.rank }).eq('ranking_id', beerB.ranking_id),
