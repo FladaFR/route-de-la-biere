@@ -14,14 +14,16 @@ const STEPS = [
 ]
 
 const BEER_COLORS = [
-  { value: 1,  label: 'Paille',      hex: '#FFE699' },
-  { value: 2,  label: 'Dorée',       hex: '#FFCA5A' },
-  { value: 3,  label: 'Blonde',      hex: '#F5B000' },
-  { value: 4,  label: 'Ambrée',      hex: '#E07800' },
-  { value: 5,  label: 'Cuivrée',     hex: '#B85000' },
-  { value: 6,  label: 'Brune',       hex: '#7A2800' },
-  { value: 7,  label: 'Très brune',  hex: '#4A1400' },
-  { value: 8,  label: 'Noire',       hex: '#1A0500' },
+  { value: 1,  hex: '#F9E84C' },
+  { value: 2,  hex: '#F5C518' },
+  { value: 3,  hex: '#F0A500' },
+  { value: 4,  hex: '#E07800' },
+  { value: 5,  hex: '#C85A00' },
+  { value: 6,  hex: '#A03800' },
+  { value: 7,  hex: '#782000' },
+  { value: 8,  hex: '#4E0D00' },
+  { value: 9,  hex: '#2A0500' },
+  { value: 10, hex: '#0A0000' },
 ]
 
 const INTENSITY_LABELS = {
@@ -415,27 +417,23 @@ function StepAspect({ form, setField, options }) {
 
       {/* Couleur */}
       <div>
-        <FieldLabel>Couleur</FieldLabel>
-        <div className="grid grid-cols-4 gap-2 mt-2">
-          {BEER_COLORS.map(c => (
-            <button
-              key={c.value}
-              onClick={() => setField('couleur', c.value)}
-              className={`flex flex-col items-center gap-1.5 p-2 rounded-xl border-2 transition-all ${
-                form.couleur === c.value
-                  ? 'border-amber-700 bg-amber-50 shadow-md'
-                  : 'border-transparent bg-white'
-              }`}
-            >
-              <div
-                className="w-9 h-9 rounded-full border border-black/10 shadow-inner"
-                style={{ backgroundColor: c.hex }}
-              />
-              <span className="text-[10px] text-gray-500 leading-tight text-center">{c.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
+  <FieldLabel>Couleur</FieldLabel>
+  <div className="flex gap-1.5 mt-2">
+    {BEER_COLORS.map(c => (
+      <button
+        key={c.value}
+        onClick={() => setField('couleur', c.value)}
+        className={`flex-1 h-10 rounded-md border-2 transition-all ${
+          form.couleur === c.value
+            ? 'border-white scale-110 shadow-lg z-10 relative'
+            : 'border-transparent'
+        }`}
+        style={{ backgroundColor: c.hex }}
+        aria-label={`Couleur ${c.value}`}
+      />
+    ))}
+  </div>
+</div>
 
       <Chips
         label="Clarté"
@@ -457,11 +455,11 @@ function StepAspect({ form, setField, options }) {
       />
 
       <Textarea
-        label="Commentaire"
-        value={form.commentaire_aspect}
-        onChange={v => setField('commentaire_aspect', v)}
-        placeholder="Notes libres sur l'aspect…"
-      />
+  label="Commentaires visuels"
+  value={form.commentaire_aspect}
+  onChange={v => setField('commentaire_aspect', v)}
+  placeholder="Commentaires sur l'aspect, la couleur, la mousse…"
+/>
     </div>
   )
 }
