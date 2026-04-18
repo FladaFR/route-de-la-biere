@@ -421,7 +421,7 @@ corps:     form.corps?.length     ? form.corps     : null,
     <button
       onClick={async () => {
         const ok = await save(true)
-        if (ok) router.push(`/classement?newBeer=${beer_id}`);
+        if (ok) router.push(`/classement?newBeer=${beerId}`);
       }}
       disabled={status === 'saving'}
       className="flex-1 py-3 rounded-xl bg-amber-900 text-white font-semibold disabled:opacity-50 text-sm"
