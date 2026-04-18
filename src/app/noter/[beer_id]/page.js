@@ -53,8 +53,8 @@ const EMPTY_FORM = {
   intensite_nez: null,
   commentaire_nez: '',
   attaque: null,
-  equilibre: null,
-  corps: null,
+  equilibre: [],        // was null
+  corps: [],            // was null
   longueur_bouche: null,
   commentaire_bouche: '',
   note_etoiles: null,
@@ -142,8 +142,8 @@ console.log('beerData:', beerData, 'beerErr:', beerErr)
           commentaire_nez:     existing.commentaire_nez || '',
           // Unwrap JSONB singles
           attaque:             existing.attaque?.option_id       ?? null,
-          equilibre:           existing.equilibre?.option_id     ?? null,
-          corps:               existing.corps?.option_id         ?? null,
+          equilibre: existing.equilibre || [],
+corps:     existing.corps     || [],
           longueur_bouche:     existing.longueur_bouche?.option_id ?? null,
           commentaire_bouche:  existing.commentaire_bouche || '',
           note_etoiles:        existing.note_etoiles ?? null,
@@ -197,8 +197,8 @@ console.log('beerData:', beerData, 'beerErr:', beerErr)
       commentaire_nez:    form.commentaire_nez || null,
       // Bouche — wrap JSONB singles
       attaque:        form.attaque       ? { option_id: form.attaque }       : null,
-      equilibre:      form.equilibre     ? { option_id: form.equilibre }     : null,
-      corps:          form.corps         ? { option_id: form.corps }         : null,
+      equilibre: form.equilibre?.length ? form.equilibre : null,
+corps:     form.corps?.length     ? form.corps     : null,
       longueur_bouche: form.longueur_bouche
                         ? { option_id: form.longueur_bouche } : null,
       commentaire_bouche: form.commentaire_bouche || null,
@@ -374,12 +374,13 @@ console.log('beerData:', beerData, 'beerErr:', beerErr)
           />
         )}
         {step === 2 && (
-          <StepBouche
-            form={form}
-            setField={setField}
-            options={options}
-          />
-        )}
+  <StepBouche
+    form={form}
+    setField={setField}
+    toggleArray={toggleArray}
+    options={options}
+  />
+)}
         {step === 3 && (
           <StepGeneral
             form={form}
@@ -562,29 +563,68 @@ function StepNez({ form, setField, toggleArray, options }) {
 
 // ─── Step 3 — Bouche ─────────────────────────────────────────────────────────
 
-function StepBouche({ form, setField, options }) {
+function StepBouche({ form, setField, toggleArray, options }) {
   return (
     <div className="space-y-7">
       <SectionTitle emoji="👄" title="Bouche" />
 
+      {/* Attaque — single select, label updated */}
       <Chips
-        label="Attaque"
+        label="Attaque en bouche"
         options={options['attaque']}
         value={form.attaque}
         onChange={v => setField('attaque', v)}
       />
-      <Chips
-        label="Équilibre"
-        options={options['equilibre']}
-        value={form.equilibre}
-        onChange={v => setField('equilibre', v)}
-      />
-      <Chips
-        label="Corps"
-        options={options['corps']}
-        value={form.corps}
-        onChange={v => setField('corps', v)}
-      />
+
+      {/* Équilibre — multi-select */}
+      <div>
+        <FieldLabel>Équilibre</FieldLabel>
+        <p className="text-xs text-amber-500 mb-2">Plusieurs choix possibles</p>
+        <div className="flex flex-wrap gap-2 mt-1">
+          {(options['equilibre'] || []).map(opt => {
+            const selected = form.equilibre?.includes(opt.option_id)
+            return (
+              <button
+                key={opt.option_id}
+                onClick={() => toggleArray('equilibre', opt.option_id)}
+                className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${
+                  selected
+                    ? 'bg-amber-700 text-white border-amber-700'
+                    : 'bg-white text-amber-800 border-amber-300'
+                }`}
+              >
+                {opt.label}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Corps — multi-select */}
+      <div>
+        <FieldLabel>Corps</FieldLabel>
+        <p className="text-xs text-amber-500 mb-2">Plusieurs choix possibles</p>
+        <div className="flex flex-wrap gap-2 mt-1">
+          {(options['corps'] || []).map(opt => {
+            const selected = form.corps?.includes(opt.option_id)
+            return (
+              <button
+                key={opt.option_id}
+                onClick={() => toggleArray('corps', opt.option_id)}
+                className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${
+                  selected
+                    ? 'bg-amber-700 text-white border-amber-700'
+                    : 'bg-white text-amber-800 border-amber-300'
+                }`}
+              >
+                {opt.label}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Longueur en bouche — single select, unchanged */}
       <Chips
         label="Longueur en bouche"
         options={options['longueur_bouche']}
@@ -592,11 +632,12 @@ function StepBouche({ form, setField, options }) {
         onChange={v => setField('longueur_bouche', v)}
       />
 
+      {/* Commentaire */}
       <Textarea
-        label="Commentaire"
+        label="Commentaires gustatifs"
         value={form.commentaire_bouche}
         onChange={v => setField('commentaire_bouche', v)}
-        placeholder="Notes libres sur la bouche…"
+        placeholder="Impressions en bouche, finale…"
       />
     </div>
   )
