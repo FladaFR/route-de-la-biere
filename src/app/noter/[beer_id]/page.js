@@ -81,7 +81,7 @@ export default function NotePage() {
 
   useEffect(() => {
     async function load() {
-      const token = localStorage.getItem('biere_token')
+      const token = localStorage.getItem('access_token')
       if (!token) { router.push('/'); return }
 
       // Participant
