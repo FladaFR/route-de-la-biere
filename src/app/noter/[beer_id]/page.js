@@ -30,6 +30,19 @@ const INTENSITY_LABELS = {
   1: 'Très faible', 2: 'Faible', 3: 'Moyenne', 4: 'Intense', 5: 'Très intense'
 }
 
+const AROMA_GROUPS = [
+  { label: 'Malt',    items: ['Pain', 'Biscuit', 'Caramel', 'Café', 'Chocolat'] },
+  { label: 'Houblon', items: ['Herbes', 'Agrumes', 'Résine', 'Fruits', 'Florales'] },
+  { label: 'Levure',  items: ['Épices', 'Banane', 'Clou de girofle', 'Phénols'] },
+  { label: 'Autres',  items: ['Boisé', 'Fumé', 'Alcool', 'Terreux', 'Cuir', 'Vanille', 'Miel'] },
+]
+
+const INTENSITY_OPTIONS = [
+  { value: 1, label: 'Légère' },
+  { value: 2, label: 'Moyenne' },
+  { value: 3, label: 'Intense' },
+]
+
 const EMPTY_FORM = {
   couleur: null,
   clarte: null,
@@ -421,16 +434,16 @@ function StepAspect({ form, setField, options }) {
   <div className="flex gap-1.5 mt-2">
     {BEER_COLORS.map(c => (
       <button
-        key={c.value}
-        onClick={() => setField('couleur', c.value)}
-        className={`flex-1 h-10 rounded-md border-2 transition-all ${
-          form.couleur === c.value
-            ? 'border-white scale-110 shadow-lg z-10 relative'
-            : 'border-transparent'
-        }`}
-        style={{ backgroundColor: c.hex }}
-        aria-label={`Couleur ${c.value}`}
-      />
+  key={c.value}
+  onClick={() => setField('couleur', c.value)}
+  className={`flex-1 h-10 rounded-md transition-all ${
+    form.couleur === c.value
+      ? 'ring-2 ring-gray-900 ring-offset-2 scale-125 z-10 relative'
+      : ''
+  }`}
+  style={{ backgroundColor: c.hex }}
+  aria-label={`Couleur ${c.value}`}
+/>
     ))}
   </div>
 </div>
@@ -465,68 +478,83 @@ function StepAspect({ form, setField, options }) {
 }
 
 // ─── Step 2 — Nez ────────────────────────────────────────────────────────────
-
 function StepNez({ form, setField, toggleArray, options }) {
+  const allOptions = options['familles_aromatiques'] || []
+
   return (
     <div className="space-y-7">
       <SectionTitle emoji="👃" title="Nez" />
 
-      {/* Familles aromatiques (multi-select) */}
+      {/* Familles aromatiques — grouped multi-select */}
       <div>
         <FieldLabel>Familles aromatiques</FieldLabel>
-        <p className="text-xs text-amber-500 mb-2">Plusieurs choix possibles</p>
-        <div className="flex flex-wrap gap-2">
-          {(options['familles_aromatiques'] || []).map(opt => {
-            const selected = form.familles_aromatiques?.includes(opt.option_id)
+        <p className="text-xs text-amber-500 mb-3">Plusieurs choix possibles</p>
+        <div className="space-y-4">
+          {AROMA_GROUPS.map(group => {
+            // Match DB options to this group's item list
+            const groupOptions = group.items
+              .map(itemLabel => allOptions.find(o => o.label === itemLabel))
+              .filter(Boolean)
+
+            if (!groupOptions.length) return null
+
             return (
-              <button
-                key={opt.option_id}
-                onClick={() => toggleArray('familles_aromatiques', opt.option_id)}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${
-                  selected
-                    ? 'bg-amber-700 text-white border-amber-700'
-                    : 'bg-white text-amber-800 border-amber-300'
-                }`}
-              >
-                {opt.label}
-              </button>
+              <div key={group.label}>
+                <p className="text-xs font-bold text-amber-700 uppercase tracking-wider mb-1.5">
+                  {group.label}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {groupOptions.map(opt => {
+                    const selected = form.familles_aromatiques?.includes(opt.option_id)
+                    return (
+                      <button
+                        key={opt.option_id}
+                        onClick={() => toggleArray('familles_aromatiques', opt.option_id)}
+                        className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${
+                          selected
+                            ? 'bg-amber-700 text-white border-amber-700'
+                            : 'bg-white text-amber-800 border-amber-300'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
             )
           })}
         </div>
       </div>
 
-      {/* Intensité — slider */}
+      {/* Intensité — 3 pills */}
       <div>
-        <FieldLabel>
-          Intensité{' '}
-          {form.intensite_nez && (
-            <span className="font-normal text-amber-600">
-              — {INTENSITY_LABELS[form.intensite_nez]}
-            </span>
-          )}
-        </FieldLabel>
-        <div className="mt-2 space-y-1">
-          <input
-            type="range"
-            min={1}
-            max={5}
-            step={1}
-            value={form.intensite_nez ?? 3}
-            onChange={e => setField('intensite_nez', parseInt(e.target.value))}
-            className="w-full accent-amber-700 h-2"
-          />
-          <div className="flex justify-between text-xs text-amber-400">
-            <span>Faible</span>
-            <span>Intense</span>
-          </div>
+        <FieldLabel>Intensité</FieldLabel>
+        <div className="flex gap-2 mt-2">
+          {INTENSITY_OPTIONS.map(opt => (
+            <button
+              key={opt.value}
+              onClick={() => setField('intensite_nez', 
+                form.intensite_nez === opt.value ? null : opt.value
+              )}
+              className={`flex-1 py-2 rounded-full text-sm font-medium border transition-all ${
+                form.intensite_nez === opt.value
+                  ? 'bg-amber-700 text-white border-amber-700'
+                  : 'bg-white text-amber-800 border-amber-300'
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
         </div>
       </div>
 
+      {/* Commentaire */}
       <Textarea
-        label="Commentaire"
+        label="Commentaires olfactifs"
         value={form.commentaire_nez}
         onChange={v => setField('commentaire_nez', v)}
-        placeholder="Notes libres sur le nez…"
+        placeholder="Arômes perçus, impressions générales…"
       />
     </div>
   )
