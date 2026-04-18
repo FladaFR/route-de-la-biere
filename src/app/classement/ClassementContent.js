@@ -51,7 +51,8 @@ export default function ClassementContent() {
       `)
       .eq('participant_id', pId)
       .eq('is_tested', true);
-
+console.log('pId:', pId)
+console.log('tested:', tested, 'error:', tErr)
     if (tErr) { setError('Impossible de charger tes bières.'); setLoading(false); return; }
     if (!tested || tested.length === 0) { setRankedBeers([]); setLoading(false); return; }
 
@@ -61,7 +62,7 @@ export default function ClassementContent() {
       .eq('participant_id', pId)
       .eq('edition_id', eId)
       .order('rank', { ascending: true });
-
+console.log('rankings:', rankings)
     const rankMap = {};
     (rankings || []).forEach(r => { rankMap[r.beer_id] = r; });
 
