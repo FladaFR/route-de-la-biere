@@ -132,7 +132,7 @@ console.log('beerData:', beerData, 'beerErr:', beerErr)
       if (existing) {
         setRatingId(existing.rating_id)
         setForm({
-          couleur:             existing.couleur    ?? null,
+          couleur: existing.couleur != null ? Number(existing.couleur) : null,
           clarte:              existing.clarte     ?? null,
           mousse:              existing.mousse     ?? null,
           effervescence:       existing.effervescence ?? null,
@@ -337,25 +337,7 @@ corps:     form.corps?.length     ? form.corps     : null,
   </div>
 </div>
 
-      {/* ── Step tabs ── */}
-      <div className="flex border-b border-amber-200 bg-white sticky top-[52px] z-10">
-        {STEPS.map((s, i) => (
-          <button
-            key={s.key}
-            onClick={() => i < step && setStep(i)} // allow going back by tapping tabs
-            className={`flex-1 py-2 text-xs font-semibold transition-colors ${
-              i === step
-                ? 'text-amber-800 border-b-2 border-amber-800'
-                : i < step
-                ? 'text-amber-500 cursor-pointer'
-                : 'text-amber-300 cursor-default'
-            }`}
-          >
-            <span className="hidden sm:inline">{s.emoji} </span>{s.label}
-          </button>
-        ))}
-      </div>
-
+      
       {/* ── Form body ── */}
       <div className="flex-1 overflow-y-auto px-4 pt-4 pb-28">
         {step === 0 && (
@@ -390,35 +372,67 @@ corps:     form.corps?.length     ? form.corps     : null,
       </div>
 
       {/* ── Bottom bar ── */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-amber-200 px-4 py-3 flex gap-3">
-        {step > 0 && (
-          <button
-            onClick={handleBack}
-            className="px-4 py-3 rounded-xl border border-amber-300 text-amber-700 font-medium"
-          >
-            ← Retour
-          </button>
-        )}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-amber-200">
+        <div className="flex border-b border-amber-100">
+          {STEPS.map((s, i) => (
+            <button
+              key={s.key}
+              onClick={() => i < step && setStep(i)}
+              className={`flex-1 py-2 text-xs font-semibold transition-colors ${
+                i === step
+                  ? 'text-amber-800 border-b-2 border-amber-800'
+                  : i < step
+                  ? 'text-amber-500 cursor-pointer'
+                  : 'text-amber-300 cursor-default'
+              }`}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+        <div className="px-4 py-3 flex gap-3">
+        
         {step < STEPS.length - 1 ? (
-          <button
-            onClick={handleNext}
-            disabled={status === 'saving'}
-            className="flex-1 py-3 rounded-xl bg-amber-700 text-white font-semibold disabled:opacity-50"
-          >
-            {status === 'saving' ? 'Sauvegarde…' : 'Suivant →'}
-          </button>
-        ) : (
-          <button
-            onClick={handleSubmit}
-            disabled={status === 'saving'}
-            className="flex-1 py-3 rounded-xl bg-green-600 text-white font-bold disabled:opacity-50 text-base"
-          >
-            {status === 'saving' ? 'Envoi…' : '✅ Valider ma dégustation'}
-          </button>
-        )}
+  <button
+    onClick={handleNext}
+    disabled={status === 'saving'}
+    className="flex-1 py-3 rounded-xl bg-amber-700 text-white font-semibold disabled:opacity-50"
+  >
+    {status === 'saving' ? 'Sauvegarde…' : 'Suivant →'}
+  </button>
+) : (
+  <>
+    <button
+      onClick={handleBack}
+      className="px-4 py-3 rounded-xl border border-amber-300 text-amber-700 font-medium shrink-0"
+    >
+      ← Retour
+    </button>
+    <button
+      onClick={async () => {
+        const ok = await save(true)
+        if (ok) router.push('/bieres')
+      }}
+      disabled={status === 'saving'}
+      className="flex-1 py-3 rounded-xl bg-amber-700 text-white font-semibold disabled:opacity-50 text-sm"
+    >
+      {status === 'saving' ? '…' : '💾 Enregistrer'}
+    </button>
+    <button
+      onClick={async () => {
+        const ok = await save(true)
+        if (ok) router.push('/classement')
+      }}
+      disabled={status === 'saving'}
+      className="flex-1 py-3 rounded-xl bg-amber-900 text-white font-semibold disabled:opacity-50 text-sm"
+    >
+      {status === 'saving' ? '…' : '🏆 Classer'}
+    </button>
+  </>
+)}
       </div>
 
-    </div>
+    </div></div>
   )
 }
 
@@ -671,8 +685,8 @@ function StepGeneral({ form, setField }) {
 
       {/* Public note */}
       <div>
-        <FieldLabel>Note publique</FieldLabel>
-        <p className="text-xs text-amber-500 mb-2">Visible par tous les participants</p>
+        <FieldLabel>Notes publiques</FieldLabel>
+<p className="text-xs text-amber-500 mb-2">Visible par tous les participants</p>
         <textarea
           value={form.public_note}
           onChange={e => setField('public_note', e.target.value)}
