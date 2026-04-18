@@ -58,10 +58,10 @@ console.log('tested:', tested, 'error:', tErr)
 
     const { data: rankings } = await supabase
       .from('rankings')
-      .select('ranking_id, beer_id, rank')
+      .select('ranking_id, beer_id, rank_position')
       .eq('participant_id', pId)
       .eq('edition_id', eId)
-      .order('rank', { ascending: true });
+      .order('rank_position', { ascending: true });
 console.log('rankings:', rankings)
     const rankMap = {};
     (rankings || []).forEach(r => { rankMap[r.beer_id] = r; });
@@ -72,20 +72,20 @@ console.log('rankings:', rankings)
 
     if (unrankedIds.length > 0) {
       const currentMax = rankings && rankings.length > 0
-        ? Math.max(...rankings.map(r => r.rank))
+        ? Math.max(...rankings.map(r => r.rank_position))
         : 0;
 
       const toInsert = unrankedIds.map((id, i) => ({
         participant_id: pId,
         edition_id: eId,
         beer_id: id,
-        rank: currentMax + i + 1,
+        rank_position: currentMax + i + 1,
       }));
 
       const { data: inserted } = await supabase
         .from('rankings')
         .insert(toInsert)
-        .select('ranking_id, beer_id, rank');
+        .select('ranking_id, beer_id, rank_position');
 
       (inserted || []).forEach(r => { rankMap[r.beer_id] = r; });
     }
@@ -94,11 +94,11 @@ console.log('rankings:', rankings)
     tested.forEach(t => { testedMap[t.beer_id] = t; });
 
     const ordered = Object.values(rankMap)
-      .sort((a, b) => a.rank - b.rank)
+      .sort((a, b) => a.rank_position - b.rank_position)
       .map(r => ({
         ranking_id: r.ranking_id,
         beer_id: r.beer_id,
-        rank: r.rank,
+        rank_position: r.rank_position,
         beer_name: testedMap[r.beer_id]?.beers?.name,
         brewery_name: testedMap[r.beer_id]?.beers?.breweries?.name,
         logo_url: testedMap[r.beer_id]?.beers?.breweries?.logo_url,
@@ -121,14 +121,14 @@ console.log('rankings:', rankings)
     setSavingId(beerA.beer_id);
 
     const updated = [...rankedBeers];
-    updated[indexA] = { ...beerA, rank: beerB.rank };
-    updated[indexB] = { ...beerB, rank: beerA.rank };
-    updated.sort((a, b) => a.rank - b.rank);
+    updated[indexA] = { ...beerA, rank_position: beerB.rank_position };
+    updated[indexB] = { ...beerB, rank_position: beerA.rank_position };
+    updated.sort((a, b) => a.rank_position - b.rank_position);
     setRankedBeers(updated);
 
     await Promise.all([
-      supabase.from('rankings').update({ rank: beerB.rank }).eq('ranking_id', beerA.ranking_id),
-      supabase.from('rankings').update({ rank: beerA.rank }).eq('ranking_id', beerB.ranking_id),
+      supabase.from('rankings').update({ rank_position: beerB.rank_position }).eq('ranking_id', beerA.ranking_id),
+      supabase.from('rankings').update({ rank_position: beerA.rank_position }).eq('ranking_id', beerB.ranking_id),
     ]);
 
     setSavingId(null);
