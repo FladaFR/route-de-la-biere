@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import Link from 'next/link'
 
 export default function AdminBrasseries() {
   const [rows, setRows] = useState([])
@@ -128,6 +129,9 @@ export default function AdminBrasseries() {
 
   return (
     <div className="max-w-md mx-auto px-4 pb-10 pt-5">
+      <Link href="/admin" className="text-sm text-amber-700 font-medium mb-4 inline-block">
+  ← Tableau de bord
+</Link>
       <h1 className="text-xl font-bold text-amber-900 mb-4">🍺 Brasseries</h1>
 
       <div className="space-y-3">

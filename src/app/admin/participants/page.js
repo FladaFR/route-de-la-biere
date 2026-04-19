@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import Link from 'next/link'
 
 function generateToken() {
   const rand = Math.random().toString(36).slice(2, 9)
@@ -112,6 +113,9 @@ export default function AdminParticipants() {
   return (
     <div className="max-w-md mx-auto px-4 pb-10 pt-5">
       <div className="flex items-center justify-between mb-4">
+        <Link href="/admin" className="text-sm text-amber-700 font-medium mb-4 inline-block">
+  ← Tableau de bord
+</Link>
         <h1 className="text-xl font-bold text-amber-900">👥 Participants</h1>
         <button
           onClick={addParticipant}
@@ -189,7 +193,7 @@ export default function AdminParticipants() {
       {newParticipant && (
         <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-5 w-full max-w-sm shadow-xl space-y-4">
-            <h3 className="text-base font-bold text-amber-900">🎉 Nouveau participant</h3>
+            <h3 className="text-base font-bold text-amber-900">🔗 Lien d'accès</h3>
             <p className="text-sm text-gray-600">
               Partagez ce lien ou faites scanner le QR code. Le participant choisira son pseudo à la première connexion.
             </p>
