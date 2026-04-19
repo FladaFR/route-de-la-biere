@@ -11,7 +11,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     async function load() {
-  const { data: ed } = await supabase
+  const { data: ed, error: edError } = await supabase
     .from('editions')
     .select('edition_id')
     .eq('is_active', true)
