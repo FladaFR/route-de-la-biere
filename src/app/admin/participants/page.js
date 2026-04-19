@@ -35,6 +35,7 @@ export default function AdminParticipants() {
   const [newParticipant, setNewParticipant] = useState(null) // { token, url }
   const [copied, setCopied] = useState(false)
   const [creating, setCreating] = useState(false)
+  const [myId, setMyId] = useState(null)
 
   useEffect(() => {
     async function load() {
@@ -47,13 +48,15 @@ export default function AdminParticipants() {
       if (!ed) return
       setEditionId(ed.edition_id)
 
-      const { data } = await supabase
-        .from('participants')
-        .select('participant_id, nickname, is_admin, avatar_url, access_token')
-        .eq('edition_id', ed.edition_id)
-        .order('nickname', { ascending: true, nullsFirst: false })
+      const token = localStorage.getItem('access_token')
+const { data } = await supabase
+  .from('participants')
+  .select('participant_id, nickname, is_admin, avatar_url, access_token')
+  .eq('edition_id', ed.edition_id)
+  .order('nickname', { ascending: true, nullsFirst: false })
 
-      setParticipants(data || [])
+setMyId(data?.find(p => p.access_token === token)?.participant_id ?? null)
+setParticipants(data || [])
       setLoading(false)
     }
     load()
@@ -176,15 +179,18 @@ export default function AdminParticipants() {
 </button>
             {/* Toggle admin */}
             <button
-              onClick={() => setToggleTarget({ participant: p })}
-              className={`text-xs font-semibold px-3 py-1.5 rounded-xl transition-colors flex-shrink-0 ${
-                p.is_admin
-                  ? 'bg-amber-100 hover:bg-amber-200 text-amber-700'
-                  : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
-              }`}
-            >
-              {p.is_admin ? 'Retirer admin' : 'Rendre admin'}
-            </button>
+  onClick={() => setToggleTarget({ participant: p })}
+  disabled={p.participant_id === myId}
+  className={`text-xs font-semibold px-3 py-1.5 rounded-xl transition-colors flex-shrink-0 ${
+    p.participant_id === myId
+      ? 'bg-gray-50 text-gray-300 cursor-not-allowed'
+      : p.is_admin
+      ? 'bg-amber-100 hover:bg-amber-200 text-amber-700'
+      : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
+  }`}
+>
+  {p.is_admin ? 'Retirer admin' : 'Rendre admin'}
+</button>
           </div>
         ))}
       </div>
