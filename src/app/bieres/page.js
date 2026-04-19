@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import NavBar from '@/components/NavBar'
+import Link from 'next/link'
 
 export default function BieresPage() {
   const router = useRouter()
@@ -11,6 +12,7 @@ export default function BieresPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [counts, setCounts] = useState({ rated: 0, toRate: 0 })
+  const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -24,7 +26,7 @@ export default function BieresPage() {
       // 2. Validate token + get participant (only if edition is active)
       const { data: participant, error: pError } = await supabase
   .from('participants')
-  .select('participant_id, edition_id, nickname, editions(is_active)')
+  .select('participant_id, edition_id, nickname, is_admin, editions(is_active)')
   .eq('access_token', token)
   .single()
 
@@ -35,6 +37,7 @@ if (pError || !participant || !participant.editions?.is_active) {
   router.replace('/')
   return
 }
+setIsAdmin(participant.is_admin ?? false) 
 
       // 3. Fetch beers for this edition, with brewery name
       const { data: beersData, error: beersError } = await supabase
@@ -109,12 +112,21 @@ if (pError || !participant || !participant.editions?.is_active) {
     <div className="min-h-screen bg-amber-50 pb-24">
       {/* Sticky header */}
       <div className="bg-amber-600 text-white px-4 py-4 sticky top-0 z-10 shadow-md">
-        <h1 className="text-xl font-bold">🍺 Mes Bières</h1>
-        <p className="text-amber-100 text-sm mt-0.5">
-          {counts.rated} notée{counts.rated !== 1 ? 's' : ''}
-          {counts.toRate > 0 && ` · ${counts.toRate} à noter`}
-        </p>
-      </div>
+  <div className="flex items-center justify-between">
+    <div>
+      <h1 className="text-xl font-bold">🍺 Mes Bières</h1>
+      <p className="text-amber-100 text-sm mt-0.5">
+        {counts.rated} notée{counts.rated !== 1 ? 's' : ''}
+        {counts.toRate > 0 && ` · ${counts.toRate} à noter`}
+      </p>
+    </div>
+    {isAdmin && (
+      <Link href="/admin" className="text-white opacity-80 hover:opacity-100 transition-opacity text-2xl leading-none">
+        ⚙️
+      </Link>
+    )}
+  </div>
+</div>
 
       {/* Beer cards */}
       <div className="p-4 space-y-3">
