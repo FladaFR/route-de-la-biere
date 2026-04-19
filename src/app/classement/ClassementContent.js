@@ -16,6 +16,7 @@ export default function ClassementContent() {
   const [savingId, setSavingId] = useState(null);
   const [participantId, setParticipantId] = useState(null);
   const [editionId, setEditionId] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   // ── 1. Identify participant ──────────────────────────────────────────────────
   useEffect(() => {
@@ -114,25 +115,29 @@ console.log('rankings:', rankings)
     if (participantId && editionId) loadRankings(participantId, editionId);
   }, [participantId, editionId, loadRankings]);
 
-  // ── 3. Swap ──────────────────────────────────────────────────────────────────
   async function swap(indexA, indexB) {
-    const beerA = rankedBeers[indexA];
-    const beerB = rankedBeers[indexB];
-    setSavingId(beerA.beer_id);
+  const beerA = rankedBeers[indexA];
+  const beerB = rankedBeers[indexB];
 
-    const updated = [...rankedBeers];
-    updated[indexA] = { ...beerA, rank_position: beerB.rank_position };
-    updated[indexB] = { ...beerB, rank_position: beerA.rank_position };
-    updated.sort((a, b) => a.rank_position - b.rank_position);
-    setRankedBeers(updated);
+  const updated = [...rankedBeers];
+  updated[indexA] = { ...beerA, rank_position: beerB.rank_position };
+  updated[indexB] = { ...beerB, rank_position: beerA.rank_position };
+  updated.sort((a, b) => a.rank_position - b.rank_position);
+  setRankedBeers(updated);
+}
 
-    await Promise.all([
-      supabase.from('rankings').update({ rank_position: beerB.rank_position }).eq('ranking_id', beerA.ranking_id),
-      supabase.from('rankings').update({ rank_position: beerA.rank_position }).eq('ranking_id', beerB.ranking_id),
-    ]);
-
-    setSavingId(null);
-  }
+async function saveRankings() {
+  setSaving(true);
+  await Promise.all(
+    rankedBeers.map((beer, index) =>
+      supabase
+        .from('rankings')
+        .update({ rank_position: index + 1 })
+        .eq('ranking_id', beer.ranking_id)
+    )
+  );
+  setSaving(false);
+}
 
   const moveUp   = (i) => { if (i > 0) swap(i, i - 1); };
   const moveDown = (i) => { if (i < rankedBeers.length - 1) swap(i, i + 1); };
@@ -192,7 +197,19 @@ console.log('rankings:', rankings)
       )}
 
       {rankedBeers.length > 0 && (
-        <div className="px-4 pt-4 space-y-3">
+  <div className="px-4 pt-4">
+    <button
+      onClick={saveRankings}
+      disabled={saving}
+      className="w-full py-3 rounded-xl bg-amber-600 text-white font-semibold shadow-md disabled:opacity-50 active:scale-95 transition-transform"
+    >
+      {saving ? 'Enregistrement…' : '💾 Enregistrer mon classement'}
+    </button>
+  </div>
+)}
+
+{rankedBeers.length > 0 && (
+  <div className="px-4 pt-3 space-y-3">
           {rankedBeers.map((beer, index) => {
             const isNew    = beer.beer_id === newBeerId;
             const isSaving = savingId === beer.beer_id;
