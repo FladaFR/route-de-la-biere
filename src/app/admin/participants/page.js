@@ -160,6 +160,16 @@ export default function AdminParticipants() {
               </div>
             </div>
 
+{/* See link */}
+<button
+  onClick={() => setNewParticipant({
+    token: p.access_token,
+    url: `${window.location.origin}/?token=${p.access_token}`,
+  })}
+  className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors flex-shrink-0"
+>
+  🔗
+</button>
             {/* Toggle admin */}
             <button
               onClick={() => setToggleTarget({ participant: p })}
