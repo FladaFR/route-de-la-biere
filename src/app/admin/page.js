@@ -16,7 +16,7 @@ export default function AdminDashboard() {
     .select('edition_id')
     .eq('is_active', true)
     .single()
-
+console.log('edition:', ed, edError)
   if (!ed) return
 
   const { data: beers } = await supabase
@@ -24,7 +24,7 @@ export default function AdminDashboard() {
     .select('beer_id, name, style, abv, description, is_unlocked, visit_order, breweries(brewery_id, name, logo_url)')
     .eq('edition_id', ed.edition_id)
     .order('visit_order', { ascending: true })
-
+console.log('beers:', beers, beersError)
   setRows(
     (beers || []).map((beer) => ({
       brewery: beer.breweries,
