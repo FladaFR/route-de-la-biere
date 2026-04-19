@@ -99,7 +99,7 @@ export default function NotePage() {
         .select('*, breweries(*)')
         .eq('beer_id', beerId)
         .single()
-// ADD THIS:
+
 console.log('beer_id:', beerId)
 console.log('beerData:', beerData, 'beerErr:', beerErr)
 
