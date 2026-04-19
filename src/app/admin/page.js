@@ -11,41 +11,36 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     async function load() {
-      const { data: ed } = await supabase
-        .from('editions')
-        .select('*')
-        .eq('is_active', true)
-        .single()
+  const { data: ed } = await supabase
+    .from('editions')
+    .select('edition_id')
+    .eq('is_active', true)
+    .single()
 
-      if (!ed) return
-      setEdition(ed)
+  if (!ed) return
 
-      const { data: breweries } = await supabase
-        .from('breweries')
-        .select('brewery_id')
-        .eq('edition_id', ed.edition_id)
+  const { data: beers } = await supabase
+    .from('beers')
+    .select('beer_id, name, style, abv, description, is_unlocked, visit_order, breweries(brewery_id, name, logo_url)')
+    .eq('edition_id', ed.edition_id)
+    .order('visit_order', { ascending: true })
 
-      const breweryIds = (breweries || []).map((b) => b.brewery_id)
-
-      const { data: beers } = await supabase
-        .from('beers')
-        .select('beer_id, is_unlocked')
-        .in('brewery_id', breweryIds.length ? breweryIds : ['none'])
-
-      const { data: participants } = await supabase
-        .from('participants')
-        .select('participant_id')
-        .eq('edition_id', ed.edition_id)
-        .not('nickname', 'is', null)
-
-      setStats({
-        unlocked: (beers || []).filter((b) => b.is_unlocked).length,
-        total: (breweries || []).length,
-        participants: (participants || []).length,
-      })
-
-      setLoading(false)
-    }
+  setRows(
+    (beers || []).map((beer) => ({
+      brewery: beer.breweries,
+      beer: {
+        beer_id: beer.beer_id,
+        name: beer.name,
+        style: beer.style,
+        abv: beer.abv,
+        description: beer.description,
+        is_unlocked: beer.is_unlocked,
+        visit_order: beer.visit_order,
+      },
+    }))
+  )
+  setLoading(false)
+}
 
     load()
   }, [])
