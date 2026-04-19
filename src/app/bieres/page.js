@@ -36,7 +36,7 @@ if (pError || !participant || !participant.editions?.is_active) {
   localStorage.removeItem('access_token')
   router.replace('/')
   return
-}
+} 
 setIsAdmin(participant.is_admin ?? false) 
 
       // 3. Fetch beers for this edition, with brewery name
