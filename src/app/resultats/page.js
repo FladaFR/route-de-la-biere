@@ -348,20 +348,19 @@ export default function ResultatsPage() {
   }, [init])
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <header className="bg-white border-b border-gray-200 px-4 pt-12 pb-4 sticky top-0 z-30">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-gray-900">Classement Général</h1>
-            {!loading && rankedBeers.length > 0 && (
-              <p className="text-xs text-gray-400 mt-0.5">
-                {rankedBeers.length} brasserie{rankedBeers.length > 1 ? 's' : ''} débloquée{rankedBeers.length > 1 ? 's' : ''}
-              </p>
-            )}
-          </div>
-          <span className="text-2xl">🏆</span>
-        </div>
-      </header>
+    <div className="min-h-screen bg-amber-50 flex flex-col">
+      <header className="bg-amber-600 text-white px-4 py-4 sticky top-0 z-30 shadow-md">
+  <div className="flex items-center justify-between">
+    <div>
+      <h1 className="text-xl font-bold">🏆 Classement Général</h1>
+      {!loading && rankedBeers.length > 0 && (
+        <p className="text-amber-100 text-sm mt-0.5">
+          {rankedBeers.length} brasserie{rankedBeers.length > 1 ? 's' : ''} débloquée{rankedBeers.length > 1 ? 's' : ''}
+        </p>
+      )}
+    </div>
+  </div>
+</header>
 
       <main className="flex-1 pb-24">
         {loading ? (
