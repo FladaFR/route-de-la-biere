@@ -34,7 +34,7 @@ export default function Profil() {
       }
 
       setParticipant(data)
-      setNickname(data.nickname)
+      setNickname(data.nickname ?? '')
       setAvatarUrl(data.avatar_url)
       setStatus('ready')
     }
