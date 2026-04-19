@@ -11,36 +11,36 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     async function load() {
-  const { data: ed, error: edError } = await supabase
-    .from('editions')
-    .select('edition_id')
-    .eq('is_active', true)
-    .single()
-console.log('edition:', ed, edError)
-  if (!ed) return
+      const { data: ed } = await supabase
+        .from('editions')
+        .select('*')
+        .eq('is_active', true)
+        .single()
 
-  const { data: beers } = await supabase
-    .from('beers')
-    .select('beer_id, name, style, abv, description, is_unlocked, visit_order, breweries(brewery_id, name, logo_url)')
-    .eq('edition_id', ed.edition_id)
-    .order('visit_order', { ascending: true })
-console.log('beers:', beers, beersError)
-  setRows(
-    (beers || []).map((beer) => ({
-      brewery: beer.breweries,
-      beer: {
-        beer_id: beer.beer_id,
-        name: beer.name,
-        style: beer.style,
-        abv: beer.abv,
-        description: beer.description,
-        is_unlocked: beer.is_unlocked,
-        visit_order: beer.visit_order,
-      },
-    }))
-  )
-  setLoading(false)
-}
+      if (!ed) return
+      setEdition(ed)
+
+      const { data: beers } = await supabase
+  .from('beers')
+  .select('beer_id, is_unlocked')
+  .eq('edition_id', ed.edition_id)
+
+      const { data: participants } = await supabase
+        .from('participants')
+        .select('participant_id')
+        .eq('edition_id', ed.edition_id)
+        .not('nickname', 'is', null)
+
+      setStats({
+  unlocked: (beers || []).filter((b) => b.is_unlocked).length,
+  total: (beers || []).length,
+  participants: (participants || []).length,
+})
+
+
+
+      setLoading(false)
+    }
 
     load()
   }, [])
