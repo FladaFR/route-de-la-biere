@@ -20,38 +20,36 @@ export default function AdminBrasseries() {
   }, [])
 
   async function load() {
-    const { data: ed } = await supabase
-      .from('editions')
-      .select('edition_id')
-      .eq('is_active', true)
-      .single()
+  const { data: ed } = await supabase
+    .from('editions')
+    .select('edition_id')
+    .eq('is_active', true)
+    .single()
 
-    if (!ed) return
+  if (!ed) return
 
-    const { data: breweries } = await supabase
-      .from('breweries')
-      .select('brewery_id, name, logo_url, visit_order')
-      .eq('edition_id', ed.edition_id)
-      .order('visit_order', { ascending: true })
+  const { data: beers } = await supabase
+    .from('beers')
+    .select('beer_id, name, style, abv, description, is_unlocked, visit_order, breweries(brewery_id, name, logo_url)')
+    .eq('edition_id', ed.edition_id)
+    .order('visit_order', { ascending: true })
 
-    if (!breweries?.length) {
-      setLoading(false)
-      return
-    }
-
-    const { data: beers } = await supabase
-      .from('beers')
-      .select('beer_id, brewery_id, name, style, abv, description, is_unlocked')
-      .in('brewery_id', breweries.map((b) => b.brewery_id))
-
-    setRows(
-      breweries.map((brewery) => ({
-        brewery,
-        beer: (beers || []).find((b) => b.brewery_id === brewery.brewery_id) || null,
-      }))
-    )
-    setLoading(false)
-  }
+  setRows(
+    (beers || []).map((beer) => ({
+      brewery: beer.breweries,
+      beer: {
+        beer_id: beer.beer_id,
+        name: beer.name,
+        style: beer.style,
+        abv: beer.abv,
+        description: beer.description,
+        is_unlocked: beer.is_unlocked,
+        visit_order: beer.visit_order,
+      },
+    }))
+  )
+  setLoading(false)
+}
 
   // ── Unlock ────────────────────────────────────────────────
   function handleUnlockClick(brewery, beer, index) {
