@@ -81,3 +81,5 @@ function SvgStar({ fill }) {
     </svg>
   )
 }
+
+export default StarSlider
