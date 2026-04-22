@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import StarSlider from '@/components/StarSlider'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -665,21 +666,14 @@ function StepGeneral({ form, setField }) {
       <SectionTitle emoji="⭐" title="Général" />
 
       {/* Star rating */}
+      {/* Star rating */}
       <div>
         <FieldLabel>Note globale</FieldLabel>
-        <div className="flex gap-2 mt-3 justify-center">
-          {[1, 2, 3, 4, 5].map(n => (
-            <button
-              key={n}
-              onClick={() =>
-                setField('note_etoiles', form.note_etoiles === n ? null : n)
-              }
-              className="text-5xl leading-none transition-transform active:scale-90"
-              aria-label={`${n} étoile${n > 1 ? 's' : ''}`}
-            >
-              {n <= (form.note_etoiles ?? 0) ? '⭐' : '☆'}
-            </button>
-          ))}
+        <div className="mt-3">
+          <StarSlider
+            value={form.note_etoiles ?? 0}
+            onChange={v => setField('note_etoiles', v)}
+          />
         </div>
       </div>
 
