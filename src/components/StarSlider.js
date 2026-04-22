@@ -29,10 +29,11 @@ function StarSlider({ value, onChange }) {
         step={0.5}
         value={val}
         onChange={e => onChange(parseFloat(e.target.value))}
-        className="w-full h-2 accent-amber-600 px-4"
+        className="w-full h-2 accent-amber-600 px-8"
+        style={{ touchAction: 'pan-y' }}
         aria-label="Note globale"
       />
-      <div className="flex justify-between w-full text-xs text-amber-400 -mt-1 px-4">
+      <div className="flex justify-between w-full text-xs text-amber-400 -mt-1 px-8">
         <span>0</span>
         <span>5</span>
       </div>
