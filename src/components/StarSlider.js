@@ -29,10 +29,10 @@ function StarSlider({ value, onChange }) {
         step={0.5}
         value={val}
         onChange={e => onChange(parseFloat(e.target.value))}
-        className="w-full h-2 accent-amber-600"
+        className="w-full h-2 accent-amber-600 px-4"
         aria-label="Note globale"
       />
-      <div className="flex justify-between w-full text-xs text-amber-400 -mt-1 px-0.5">
+      <div className="flex justify-between w-full text-xs text-amber-400 -mt-1 px-4">
         <span>0</span>
         <span>5</span>
       </div>
@@ -51,7 +51,7 @@ function getStarFill(value, starIndex) {
 function SvgStar({ fill }) {
   // Unique ID per fill type is fine since we only have 3 variants
   const clipId = `half-${fill}`
-  const filled = '#d97706'   // amber-600
+   const filled = '#facc15'   // yellow-400
   const empty  = '#d6d3d1'   // stone-300
 
   return (
