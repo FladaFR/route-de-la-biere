@@ -4,6 +4,9 @@ import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import NavBar from '@/components/NavBar'
+import {
+  Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer
+} from 'recharts'
 
 // ─── Score computation ────────────────────────────────────────────────────────
 
@@ -111,26 +114,69 @@ function BreweryLogo({ logoUrl, name }) {
 
 function DetailSheet({ beer, onClose }) {
   const [notes, setNotes] = useState([])
+  const [aromaOptions, setAromaOptions] = useState([])
+  const [aromaFreqs, setAromaFreqs] = useState({})
+  const [raterCount, setRaterCount] = useState(0)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (!beer) return
-    async function loadNotes() {
+    async function loadData() {
       setLoading(true)
-      const { data } = await supabase
+
+      const { data: notesData } = await supabase
         .from('ratings')
         .select('public_note, participants(nickname, avatar_url)')
         .eq('beer_id', beer.beer_id)
         .not('public_note', 'is', null)
         .neq('public_note', '')
-      setNotes(data || [])
+      setNotes(notesData || [])
+
+      const { data: ratingsData } = await supabase
+        .from('ratings')
+        .select('familles_aromatiques')
+        .eq('beer_id', beer.beer_id)
+        .eq('is_tested', true)
+
+      const allRatings = ratingsData || []
+      setRaterCount(allRatings.length)
+
+      const { data: optionsData } = await supabase
+        .from('rating_options')
+        .select('option_id, label')
+        .eq('category', 'familles_aromatiques')
+        .order('label')
+
+      const options = optionsData || []
+      setAromaOptions(options)
+
+      const freqs = {}
+      for (const opt of options) freqs[opt.option_id] = 0
+      for (const rating of allRatings) {
+        for (const optId of (rating.familles_aromatiques || [])) {
+          if (freqs[optId] !== undefined) freqs[optId]++
+        }
+      }
+      setAromaFreqs(freqs)
+
       setLoading(false)
     }
-    loadNotes()
+    loadData()
   }, [beer])
 
   if (!beer) return null
   const brewery = beer.breweries
+
+  // Build radar data: one entry per aromatic family
+  const radarData = aromaOptions.map(opt => ({
+    label: opt.label,
+    value: aromaFreqs[opt.option_id] ?? 0,
+  }))
+
+  // Pills sorted by frequency descending (only non-zero)
+  const pills = [...radarData]
+    .filter(d => d.value > 0)
+    .sort((a, b) => b.value - a.value)
 
   return (
     <>
@@ -169,6 +215,50 @@ function DetailSheet({ beer, onClose }) {
                 </span>
               )}
             </div>
+          </div>
+
+          {/* Aromatic radar */}
+          <div className="px-5 pt-4 pb-2 border-b border-gray-100">
+            <h3 className="text-sm font-semibold text-gray-700 mb-3">Familles aromatiques</h3>
+            {loading ? (
+              <p className="text-sm text-gray-400 italic">Chargement…</p>
+            ) : raterCount < 2 ? (
+              <p className="text-sm text-gray-400 italic">
+                Pas encore assez de notes pour afficher les arômes.
+              </p>
+            ) : (
+              <>
+                <ResponsiveContainer width="100%" height={240}>
+                  <RadarChart data={radarData} margin={{ top: 10, right: 20, bottom: 10, left: 20 }}>
+                    <PolarGrid stroke="#e5e7eb" />
+                    <PolarAngleAxis
+                      dataKey="label"
+                      tick={{ fontSize: 11, fill: '#6b7280' }}
+                    />
+                    <Radar
+                      dataKey="value"
+                      stroke="#d97706"
+                      fill="#d97706"
+                      fillOpacity={0.15}
+                      dot={{ r: 3, fill: '#d97706' }}
+                    />
+                  </RadarChart>
+                </ResponsiveContainer>
+
+                {pills.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {pills.map(p => (
+                      <span
+                        key={p.label}
+                        className="text-xs bg-amber-50 text-amber-800 border border-amber-200 rounded-full px-3 py-1"
+                      >
+                        {p.label} · {p.value}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
           </div>
 
           {/* Public notes */}
