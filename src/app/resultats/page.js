@@ -110,6 +110,14 @@ function BreweryLogo({ logoUrl, name }) {
   )
 }
 
+const AROMA_GROUPS = [
+  { label: 'Malt',    items: ['Pain', 'Biscuit', 'Caramel', 'Café', 'Chocolat'] },
+  { label: 'Houblon', items: ['Herbes', 'Agrumes', 'Résine', 'Fruits', 'Florales'] },
+  { label: 'Levure',  items: ['Épices', 'Banane', 'Clou de girofle', 'Phénols'] },
+  { label: 'Autres',  items: ['Boisé', 'Fumé', 'Alcool', 'Terreux', 'Cuir', 'Vanille', 'Miel'] },
+]
+const AROMA_ORDER = AROMA_GROUPS.flatMap(g => g.items)
+
 // ─── Detail bottom sheet ─────────────────────────────────────────────────────
 
 function DetailSheet({ beer, onClose }) {
@@ -145,7 +153,6 @@ function DetailSheet({ beer, onClose }) {
         .from('rating_options')
         .select('option_id, label')
         .eq('category', 'familles_aromatiques')
-        .order('label')
 
       const options = optionsData || []
       setAromaOptions(options)
@@ -168,10 +175,10 @@ function DetailSheet({ beer, onClose }) {
   const brewery = beer.breweries
 
   // Build radar data: one entry per aromatic family
-  const radarData = aromaOptions.map(opt => ({
-    label: opt.label,
-    value: aromaFreqs[opt.option_id] ?? 0,
-  }))
+const radarData = AROMA_ORDER.map(label => {
+  const opt = aromaOptions.find(o => o.label === label)
+  return { label, value: opt ? (aromaFreqs[opt.option_id] ?? 0) : 0 }
+})
 
   // Pills sorted by frequency descending (only non-zero)
   const pills = [...radarData]
@@ -232,9 +239,9 @@ function DetailSheet({ beer, onClose }) {
                   <RadarChart data={radarData} margin={{ top: 10, right: 20, bottom: 10, left: 20 }}>
                     <PolarGrid stroke="#e5e7eb" />
                     <PolarAngleAxis
-                      dataKey="label"
-                      tick={{ fontSize: 11, fill: '#6b7280' }}
-                    />
+  dataKey="label"
+  tick={{ fontSize: 9, fill: '#6b7280' }}
+/>
                     <Radar
                       dataKey="value"
                       stroke="#d97706"
