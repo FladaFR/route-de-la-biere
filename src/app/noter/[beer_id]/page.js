@@ -185,7 +185,7 @@ corps:     existing.corps     || [],
     const payload = {
       participant_id: participant.participant_id,
       beer_id: beerId,
-      is_tested: isFinal,
+     
       // Aspect
       couleur:            form.couleur,
       clarte:             form.clarte,
@@ -209,8 +209,9 @@ corps:     form.corps?.length     ? form.corps     : null,
       public_note:  form.public_note  || null,
     }
 
+    if (isFinal) payload.is_tested = true
+
     let error = null
-console.log('PATCH payload:', JSON.stringify(payload))
     if (ratingId) {
       const { error: e } = await supabase
         .from('ratings')
