@@ -204,7 +204,7 @@ corps:     form.corps?.length     ? form.corps     : null,
                         ? { option_id: form.longueur_bouche } : null,
       commentaire_bouche: form.commentaire_bouche || null,
       // Général
-      note_etoiles: form.note_etoiles,
+      note_etoiles: form.note_etoiles != null ? parseFloat(form.note_etoiles) : null,
       notes_libres: form.notes_libres || null,
       public_note:  form.public_note  || null,
     }
