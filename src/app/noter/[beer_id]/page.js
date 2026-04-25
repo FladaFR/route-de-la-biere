@@ -210,7 +210,7 @@ corps:     form.corps?.length     ? form.corps     : null,
     }
 
     let error = null
-
+console.log('PATCH payload:', JSON.stringify(payload))
     if (ratingId) {
       const { error: e } = await supabase
         .from('ratings')
