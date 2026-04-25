@@ -223,7 +223,7 @@ const radarData = AROMA_ORDER.map(label => {
               )}
               {beer.avgStars !== null && (
   <span className="text-xs bg-amber-50 text-amber-700 rounded-full px-3 py-1 font-medium">
-    {Number(beer.avgStars.toFixed(3))} ⭐
+    Moy. {Number(beer.avgStars.toFixed(3))} ⭐
   </span>
 )}
             </div>
@@ -387,7 +387,7 @@ function BeerList({ beers, onSelect }) {
                   <ScoreBar score={beer.avgScore} />
                   {beer.avgStars !== null && (
   <p className="text-xs text-amber-600 font-medium mt-0.5 tabular-nums">
-    {Number(beer.avgStars.toFixed(3))} ⭐
+    Moy. {Number(beer.avgStars.toFixed(3))} ⭐
   </p>
 )}
                 </div>
