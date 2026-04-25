@@ -205,7 +205,7 @@ const radarData = AROMA_ORDER.map(label => {
                 <h2 className="text-lg font-bold text-gray-900 leading-tight">{beer.name}</h2>
               </div>
             </div>
-            <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2">
               {beer.style && (
                 <span className="text-xs bg-gray-100 text-gray-600 rounded-full px-3 py-1">
                   {beer.style}
@@ -221,6 +221,11 @@ const radarData = AROMA_ORDER.map(label => {
                   {beer.voterCount} vote{beer.voterCount > 1 ? 's' : ''}
                 </span>
               )}
+              {beer.avgStars !== null && (
+  <span className="text-xs bg-amber-50 text-amber-700 rounded-full px-3 py-1 font-medium">
+    {Number(beer.avgStars.toFixed(3))} ⭐
+  </span>
+)}
             </div>
           </div>
 
@@ -380,6 +385,11 @@ function BeerList({ beers, onSelect }) {
                 </div>
                 <div className="mt-1.5">
                   <ScoreBar score={beer.avgScore} />
+                  {beer.avgStars !== null && (
+  <p className="text-xs text-amber-600 font-medium mt-0.5 tabular-nums">
+    {Number(beer.avgStars.toFixed(3))} ⭐
+  </p>
+)}
                 </div>
               </div>
               <span className="text-gray-300 text-sm shrink-0">›</span>
@@ -435,7 +445,29 @@ export default function ResultatsPage() {
       .select('participant_id, beer_id, rank_position')
       .eq('edition_id', participant.edition_id)
 
-    const scored = computeScores(beers, rankings || [], participant.participant_id)
+    const beerIds = beers.map(b => b.beer_id)
+const { data: starRatings } = await supabase
+  .from('ratings')
+  .select('beer_id, note_etoiles')
+  .in('beer_id', beerIds)
+  .eq('is_tested', true)
+  .not('note_etoiles', 'is', null)
+
+const starsByBeer = {}
+for (const r of (starRatings || [])) {
+  if (!starsByBeer[r.beer_id]) starsByBeer[r.beer_id] = []
+  starsByBeer[r.beer_id].push(parseFloat(r.note_etoiles))
+}
+const avgStarsByBeer = {}
+for (const [bId, vals] of Object.entries(starsByBeer)) {
+  avgStarsByBeer[bId] = vals.reduce((a, b) => a + b, 0) / vals.length
+}
+
+const scored = computeScores(beers, rankings || [], participant.participant_id)
+  .map(beer => ({
+    ...beer,
+    avgStars: avgStarsByBeer[beer.beer_id] ?? null,
+  }))
     setRankedBeers(scored)
     setLoading(false)
   }, [router])
