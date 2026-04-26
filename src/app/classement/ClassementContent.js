@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase'
 import NavBar from '@/components/NavBar';
+import StarDisplay from '@/components/StarDisplay'
 
 export default function ClassementContent() {
   const router = useRouter();
@@ -142,16 +143,7 @@ async function saveRankings() {
   const moveUp   = (i) => { if (i > 0) swap(i, i - 1); };
   const moveDown = (i) => { if (i < rankedBeers.length - 1) swap(i, i + 1); };
 
-  // ── 4. Stars ─────────────────────────────────────────────────────────────────
-  function renderStars(n) {
-    if (!n) return <span className="text-gray-300 text-sm">—</span>;
-    return (
-      <span className="text-amber-400 text-sm tracking-tight">
-        {'★'.repeat(n)}{'☆'.repeat(5 - n)}
-      </span>
-    );
-  }
-
+  
   // ── 5. Render ────────────────────────────────────────────────────────────────
   if (loading) {
     return (
@@ -246,7 +238,7 @@ async function saveRankings() {
                 <div className="flex-1 min-w-0">
                   <p className="text-xs text-gray-400 truncate">{beer.brewery_name}</p>
                   <p className="text-sm font-semibold text-gray-800 truncate leading-tight">{beer.beer_name}</p>
-                  <div className="mt-0.5">{renderStars(beer.note_etoiles)}</div>
+                  <div className="mt-0.5"><StarDisplay value={beer.note_etoiles} size={16} /></div>
                 </div>
 
                 {/* ▲ / ▼ */}
