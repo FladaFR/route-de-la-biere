@@ -216,11 +216,11 @@ const radarData = AROMA_ORDER.map(label => {
                   {beer.abv}% ABV
                 </span>
               )}
-              {beer.voterCount > 0 && (
-                <span className="text-xs bg-green-50 text-green-700 rounded-full px-3 py-1">
-                  {beer.voterCount} vote{beer.voterCount > 1 ? 's' : ''}
-                </span>
-              )}
+              {!loading && raterCount > 0 && (
+  <span className="text-xs bg-green-50 text-green-700 rounded-full px-3 py-1">
+    {raterCount} vote{raterCount > 1 ? 's' : ''}
+  </span>
+)}
               {beer.avgStars !== null && (
   <span className="text-xs bg-amber-50 text-amber-700 rounded-full px-3 py-1 font-medium">
     Moy. {Number(beer.avgStars.toFixed(3))} ⭐
